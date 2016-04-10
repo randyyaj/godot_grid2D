@@ -4,7 +4,7 @@ Project that has multiple inner projects showcasing Grid 2D movements, area high
 
 grid_movement: Highlights area where a character can walk.
 
-![Map](https://www.dropbox.com/s/nnz2aei7ud8yiy8/map.png?dl=0)
-![Map](https://www.dropbox.com/s/nnz2aei7ud8yiy8/map.png?dl=0)
-![GitHub Logo](/images/logo.png)
-
+![Map](https://dl.dropboxusercontent.com/u/45209445/git_hub_screenshots/map.png)
+![Move 5](https://dl.dropboxusercontent.com/u/45209445/git_hub_screenshots/move_5.png)
+![Move 8](https://dl.dropboxusercontent.com/u/45209445/git_hub_screenshots/move_8.png)
+![Move 10](https://dl.dropboxusercontent.com/u/45209445/git_hub_screenshots/move_10.png)
