@@ -1,2 +1,3 @@
 # godot_pathfinding_fe
-Fire emblem type pathfinding
+
+Project that has multiple inner projects showcasing Grid 2D movements, area highlighting, and other features to come.
