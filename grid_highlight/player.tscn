@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=1]
+
+[ext_resource path="res://Character.gd" type="Script" id=1]
+[ext_resource path="res://images/player.png" type="Texture" id=2]
+
+[node name="KinematicBody2D" type="KinematicBody2D"]
+
+input/pickable = false
+collision/layers = 1
+collision/mask = 1
+collision/margin = 0.08
+script/script = ExtResource( 1 )
+movement = 0
+
+[node name="Sprite" type="Sprite" parent="."]
+
+texture = ExtResource( 2 )
+centered = false
+
+
