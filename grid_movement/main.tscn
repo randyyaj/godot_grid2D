@@ -29,11 +29,19 @@ transform/pos = Vector2( 128, 80 )
 collision/margin = 0.08
 movement = 5
 
+[node name="Sprite" parent="KinematicBody2D"]
+
+region_rect = Rect2( 0, 51, 16, 16 )
+
 [node name="KinematicBody2D1" parent="." instance=ExtResource( 2 )]
 
 transform/pos = Vector2( 64, 160 )
 collision/margin = 0.08
 movement = 10
+
+[node name="Sprite" parent="KinematicBody2D1"]
+
+region_rect = Rect2( 0, 102, 16, 16 )
 
 [node name="KinematicBody2D2" parent="." instance=ExtResource( 2 )]
 
@@ -42,3 +50,5 @@ collision/margin = 0.08
 movement = 8
 
 
+[editable path="KinematicBody2D"]
+[editable path="KinematicBody2D1"]

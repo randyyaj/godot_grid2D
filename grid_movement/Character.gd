@@ -10,7 +10,7 @@ var CellSet = preload('CellSet.gd')
 const TILE_WIDTH=16
 const TILE_HEIGHT=16
 const TILE_SIZE=Vector2(TILE_WIDTH,TILE_HEIGHT)
-const MOVE_SPEED=8 #MUST BE DIVIDABLE BY THE TILE SIZE
+const MOVE_SPEED=4 #MUST BE DIVIDABLE BY THE TILE SIZE
 
 #Export variables to control on the scene editor/inspector
 export var movement = 0
@@ -68,7 +68,6 @@ func _fixed_process(delta):
 				next = path[next_counter]
 			
 		if (get_pos() == path[path.size()-1].get_pos()):
-			print('here')
 			can_player_move = false
 			next_counter = 0
 			path.clear()
