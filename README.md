@@ -2,8 +2,8 @@
 
 Project that has multiple inner projects showcasing Grid 2D movements, area highlighting, and other features to come.
 
-grid_movement: Highlights area where a character can walk and move them there.
-grid_hightlight: Code using dijkstras to highlight movable areas
+- grid_movement: Highlights area where a character can walk and move them there.
+- grid_hightlight: Code using dijkstras to highlight movable areas
 
 ### Characters moving
 ![Movement](https://dl.dropboxusercontent.com/u/45209445/git_hub_screenshots/movement.gif)
