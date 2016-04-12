@@ -10,6 +10,7 @@ var CellSet = preload('CellSet.gd')
 const TILE_WIDTH=16
 const TILE_HEIGHT=16
 const TILE_SIZE=Vector2(TILE_WIDTH,TILE_HEIGHT)
+const MOVE_SPEED=8 #MUST BE DIVIDABLE BY THE TILE SIZE
 
 #Export variables to control on the scene editor/inspector
 export var movement = 0
@@ -20,7 +21,10 @@ var tilemap
 var hit
 var close 
 var path
-var can_move_player
+var can_player_move
+
+var next
+var next_counter
 
 func _ready():
 	add_to_group ("characters", true)
@@ -32,28 +36,43 @@ func _ready():
 	hit = false
 	close = []
 	path = []
-	can_move_player = false
+	can_player_move = false
+	next = null
+	next_counter = 0
 
 func _process(delta):
-	if (can_move_player and path.size() > 0):
-		for i in path:
-			print(i.to_string())
-			move_to(i.get_pos())
-			"""
-			while get_pos() != i.get_pos():
-				if (get_pos().x < i.get_pos().x):
-					move(delta*Vector2(20,0))
-				if (get_pos().x > i.get_pos().x):
-					move(delta*Vector2(-20,0))
-				if (get_pos().y < i.get_pos().y):
-					move(delta*Vector2(0,20))
-				if (get_pos().y > i.get_pos().y):
-					move(delta*Vector2(0,-20))
-			"""		
-		can_move_player = !can_move_player
+	pass
 
 func _fixed_process(delta):
 	update() #Runs _draw() function
+	
+	if (can_player_move and path.size() > 0):
+		if (get_pos() != next.get_pos()):
+			
+			#print('[',get_pos().x,',',get_pos().y,'] , [',next.get_pos().x,',',next.get_pos().y,']')
+			
+			if (get_pos().x < next.get_pos().x):
+				move(MOVE_SPEED * Vector2(1,0))
+				
+			if (get_pos().x > next.get_pos().x):
+				move(MOVE_SPEED * Vector2(-1,0))
+				
+			if (get_pos().y < next.get_pos().y):
+				move(MOVE_SPEED * Vector2(0,1))
+				
+			if (get_pos().y > next.get_pos().y):
+				move(MOVE_SPEED * Vector2(0,-1))
+		else:
+			if (next_counter < path.size()-1):
+				next_counter+=1
+				next = path[next_counter]
+			
+		if (get_pos() == path[path.size()-1].get_pos()):
+			print('here')
+			can_player_move = false
+			next_counter = 0
+			path.clear()
+		
 
 func _draw():
 	#Draws squares from the closed list
@@ -141,6 +160,7 @@ func follow_mouse(mouse_pos):
 		   path.append(current)
 		
 		path.invert()
+		next = path[0]
 	else:
 		path.clear()
 	
@@ -156,10 +176,10 @@ func _input(event):
 			show_moveable_areas()
 		else:
 			hit = false
-			can_move_player = !can_move_player
+			can_player_move = true
 			close.clear()
 		
-	if (event.type==InputEvent.MOUSE_MOTION):
+	if (event.type==InputEvent.MOUSE_MOTION and hit):
 		follow_mouse(tilemap.map_to_world(tilemap.world_to_map(event.pos)))
 		#print("Mouse Motion at: ", tilemap.map_to_world(tilemap.world_to_map(event.pos)))
 			
