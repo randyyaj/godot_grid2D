@@ -10,7 +10,7 @@ var CellSet = preload('CellSet.gd')
 const TILE_WIDTH=16
 const TILE_HEIGHT=16
 const TILE_SIZE=Vector2(TILE_WIDTH,TILE_HEIGHT)
-const MOVE_SPEED=4 #MUST BE DIVIDABLE BY THE TILE SIZE
+const MOVE_SPEED=4 #MUST BE DIVIDABLE BY THE TILE SIZE and BASE 2 Where MAX_SPEED==TILE_SIZE ex: 0.25, .5, 1, 2, 4, 8, 16
 
 #Export variables to control on the scene editor/inspector
 export var movement = 0
@@ -30,7 +30,6 @@ func _ready():
 	add_to_group ("characters", true)
 	set_process_input(true)
 	set_fixed_process(true)
-	set_process(true)
 	tilemap = get_node('../TileMap')
 	tileDB = TileDB.new()
 	hit = false
@@ -39,9 +38,6 @@ func _ready():
 	can_player_move = false
 	next = null
 	next_counter = 0
-
-func _process(delta):
-	pass
 
 func _fixed_process(delta):
 	update() #Runs _draw() function
@@ -142,6 +138,9 @@ func get_tile_from_pos(pos):
 	"""
 	return tileDB.get_tile_from_pos(tilemap, pos)
 	
+func is_moving():
+	return can_player_move
+
 func follow_mouse(mouse_pos):
 	
 	var current = null
@@ -158,6 +157,8 @@ func follow_mouse(mouse_pos):
 		   current = current.get_parent()
 		   path.append(current)
 		
+		#---TODO Prevent collision Invalid call. Nonexistent function 'get_pos' in base 'Nil'.
+		#---TODO only one character can move at a time
 		path.invert()
 		next = path[0]
 	else:
@@ -169,13 +170,22 @@ func _input(event):
 	"""
 	if event.type == InputEvent.MOUSE_BUTTON and event.is_pressed() and !event.is_echo():
 		if tilemap.world_to_map(event.pos) == tilemap.world_to_map(get_pos()):
-			hit = !hit
-			close.clear()
-			path.clear()
-			show_moveable_areas()
+			var other_unit_moving = false
+			
+			for node in get_tree().get_nodes_in_group("characters"):
+				if (node.is_moving()):
+					other_unit_moving = true
+					
+			if (!other_unit_moving):
+				hit = !hit
+				close.clear()
+				path.clear()
+				show_moveable_areas()
 		else:
 			hit = false
-			can_player_move = true
+			if (path.size() > 0):
+				can_player_move = true
+						
 			close.clear()
 		
 	if (event.type==InputEvent.MOUSE_MOTION and hit):
