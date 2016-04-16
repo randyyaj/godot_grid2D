@@ -5,6 +5,7 @@ extends KinematicBody2D
 var TileDB = preload('TileDB.gd')
 var Cell = preload('Cell.gd')
 var CellSet = preload('CellSet.gd')
+var CharacterMenu = preload('CharacterMenu.gd')
 
 #Constants
 const TILE_WIDTH=16
@@ -22,9 +23,10 @@ var hit
 var close 
 var path
 var can_player_move
-
+var character_menu
 var next
 var next_counter
+var finished_moving
 
 func _ready():
 	add_to_group ("characters", true)
@@ -38,10 +40,13 @@ func _ready():
 	can_player_move = false
 	next = null
 	next_counter = 0
+	character_menu = CharacterMenu.new()
+	add_child(character_menu)
+	finished_moving = true
 
 func _fixed_process(delta):
 	update() #Runs _draw() function
-	
+
 	if (can_player_move and path.size() > 0):
 		if (get_pos() != next.get_pos()):
 			
@@ -66,8 +71,17 @@ func _fixed_process(delta):
 		if (get_pos() == path[path.size()-1].get_pos()):
 			can_player_move = false
 			next_counter = 0
+			
+			#TODO Need action menu to run sequentially to update the characters paths
+			#character_menu.set_process_input(true)
+			character_menu.set_pos(get_pos()+Vector2(24,0))
+			character_menu.popup()
+			#character_menu.grab_focus()
+			character_menu.set_original_location(path[0].get_pos())
+			#character_menu.show_modal(true)
+			print('HERE SCOPE')
 			path.clear()
-		
+			#set_process_input(false)
 
 func _draw():
 	#Draws squares from the closed list
@@ -183,6 +197,13 @@ func _input(event):
 				show_moveable_areas()
 		else:
 			hit = false
+			
+			if (character_menu.is_visible()): #TODO USE MODAL
+				character_menu.popup()
+				if (path.size() > 0):
+					move_to(path[0].get_pos())
+					path.clear()
+			
 			if (path.size() > 0):
 				can_player_move = true
 						
