@@ -16,14 +16,8 @@ func _ready():
 	set_process_input(true)
 	set_fixed_process(true)
 	print('In ready')
-	wait_button.connect("pressed", self, "_on_wait_action")
-	cancel_button.connect("pressed", self, "_on_cancel_action")
-	
-func _input(event):
-	pass
-
-func _fixed_process(delta):
-	pass
+	self.wait_button.connect("pressed", self, "_on_wait_action")
+	self.cancel_button.connect("pressed", self, "_on_cancel_action")
 		
 func toggle_item_button(state):
 	if (state):
@@ -58,14 +52,17 @@ func show_cancel_button(state):
 func _on_wait_action():
 	print('Wait Action')
 	var parent = self.get_parent()
-	parent.set_opacity(0.5)
-	get_node(self.get_parent()).set_path([])
+	parent.set_opacity(.60)
+	#parent.get_node('Sprite').set_modulate(Color(1,1,1,.50))
+	parent.set_process_input(false)
 	#print (self.get_parent().get_path().size())
+	self.hide()
 
 func _on_cancel_action():
 	print('Cancel Action')
 	var parent = self.get_parent()
 	parent.move_to(original_location)
+	self.hide()
 
 func set_original_location(location):
 	self.original_location = location

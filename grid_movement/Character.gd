@@ -75,9 +75,9 @@ func _fixed_process(delta):
 			#TODO Need action menu to run sequentially to update the characters paths
 			#character_menu.set_process_input(true)
 			character_menu.set_pos(get_pos()+Vector2(24,0))
-			character_menu.popup()
-			#character_menu.grab_focus()
+			character_menu.show()
 			character_menu.set_original_location(path[0].get_pos())
+			#character_menu.grab_focus()
 			#character_menu.show_modal(true)
 			print('HERE SCOPE')
 			path.clear()
@@ -93,6 +93,7 @@ func _draw():
 			
 		for i in path:
 			draw_rect(Rect2(i.get_pos()-get_pos(), TILE_SIZE), Color(1,1,0,0.75))
+		
 
 func show_moveable_areas():
 	"""
@@ -189,18 +190,21 @@ func _input(event):
 			for node in get_tree().get_nodes_in_group("characters"):
 				if (node.is_moving()):
 					other_unit_moving = true
+					set_process_input(false)
 					
 			if (!other_unit_moving):
 				hit = !hit
 				close.clear()
 				path.clear()
 				show_moveable_areas()
+			
 		else:
 			hit = false
 			
 			if (character_menu.is_visible()): #TODO USE MODAL
-				character_menu.popup()
+				#character_menu.hide()
 				if (path.size() > 0):
+					print('hit')
 					move_to(path[0].get_pos())
 					path.clear()
 			
