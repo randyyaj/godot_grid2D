@@ -15,6 +15,11 @@ var original_location
 func _ready():
 	set_process_input(true)
 	set_fixed_process(true)
+	item_button.hide()
+	attack_button.hide()
+	trade_button.hide()
+	wait_button.hide()
+	cancel_button.hide()
 	print('In ready')
 	self.wait_button.connect("pressed", self, "_on_wait_action")
 	self.cancel_button.connect("pressed", self, "_on_cancel_action")
@@ -31,19 +36,19 @@ func toggle_attack_button(state):
 	else:
 		attack_button.hide()
 	
-func show_trade_button(state):
+func toggle_trade_button(state):
 	if (state):
 		trade_button.show()
 	else:
 		trade_button.hide()
 		
-func show_wait_button(state):
+func toggle_wait_button(state):
 	if (state):
 		wait_button.show()
 	else:
 		wait_button.hide()
 
-func show_cancel_button(state):
+func toggle_cancel_button(state):
 	if (state):
 		cancel_button.show()
 	else:
@@ -55,13 +60,16 @@ func _on_wait_action():
 	parent.set_opacity(.60)
 	#parent.get_node('Sprite').set_modulate(Color(1,1,1,.50))
 	parent.set_process_input(false)
-	#print (self.get_parent().get_path().size())
+	parent.set_fixed_process(false)
+	parent.set_process(false)
+	parent.is_active = false
 	self.hide()
 
 func _on_cancel_action():
 	print('Cancel Action')
 	var parent = self.get_parent()
 	parent.move_to(original_location)
+	parent.is_active = false
 	self.hide()
 
 func set_original_location(location):

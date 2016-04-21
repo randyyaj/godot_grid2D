@@ -22,66 +22,72 @@ var tilemap
 var hit
 var close 
 var path
-var can_player_move
+var is_active
 var character_menu
 var next
 var next_counter
-var finished_moving
 
 func _ready():
 	add_to_group ("characters", true)
 	set_process_input(true)
 	set_fixed_process(true)
+	set_process(true)
+	
 	tilemap = get_node('../TileMap')
 	tileDB = TileDB.new()
 	hit = false
+	is_active = false	
 	close = []
 	path = []
-	can_player_move = false
 	next = null
 	next_counter = 0
+	
 	character_menu = CharacterMenu.new()
 	add_child(character_menu)
-	finished_moving = true
 
 func _fixed_process(delta):
 	update() #Runs _draw() function
 
-	if (can_player_move and path.size() > 0):
-		if (get_pos() != next.get_pos()):
+func _process(delta):
+	if (is_active):
+		if (path.size() > 0):
+			if (get_pos() != next.get_pos()):
+				if (get_pos().x < next.get_pos().x):
+					move(MOVE_SPEED * Vector2(1,0))
+					
+				if (get_pos().x > next.get_pos().x):
+					move(MOVE_SPEED * Vector2(-1,0))
+					
+				if (get_pos().y < next.get_pos().y):
+					move(MOVE_SPEED * Vector2(0,1))
+					
+				if (get_pos().y > next.get_pos().y):
+					move(MOVE_SPEED * Vector2(0,-1))
+			else:
+				if (next_counter < path.size()-1):
+					next_counter+=1
+					next = path[next_counter]
 			
-			#print('[',get_pos().x,',',get_pos().y,'] , [',next.get_pos().x,',',next.get_pos().y,']')
-			
-			if (get_pos().x < next.get_pos().x):
-				move(MOVE_SPEED * Vector2(1,0))
-				
-			if (get_pos().x > next.get_pos().x):
-				move(MOVE_SPEED * Vector2(-1,0))
-				
-			if (get_pos().y < next.get_pos().y):
-				move(MOVE_SPEED * Vector2(0,1))
-				
-			if (get_pos().y > next.get_pos().y):
-				move(MOVE_SPEED * Vector2(0,-1))
-		else:
-			if (next_counter < path.size()-1):
-				next_counter+=1
-				next = path[next_counter]
-			
-		if (get_pos() == path[path.size()-1].get_pos()):
-			can_player_move = false
-			next_counter = 0
-			
-			#TODO Need action menu to run sequentially to update the characters paths
-			#character_menu.set_process_input(true)
-			character_menu.set_pos(get_pos()+Vector2(24,0))
-			character_menu.show()
-			character_menu.set_original_location(path[0].get_pos())
-			#character_menu.grab_focus()
-			#character_menu.show_modal(true)
-			print('HERE SCOPE')
-			path.clear()
-			#set_process_input(false)
+			if (get_pos() == path[path.size()-1].get_pos()):
+				next_counter = 0
+				show_character_menu()
+				path.clear()
+
+func show_character_menu():
+	#TODO Need action menu to run sequentially to update the characters paths
+	#character_menu.set_process_input(true)
+	character_menu.set_pos(get_pos()+Vector2(24,0))
+	character_menu.toggle_wait_button(true)
+	character_menu.toggle_cancel_button(true)
+	#if character is near enemy and can attack
+	#character_menu;.
+	character_menu.show()
+	character_menu.set_original_location(path[0].get_pos())
+	#character_menu.grab_focus()
+	#character_menu.show_modal(true)
+	#print('PATH CLEARED')
+	#path.clear()
+	#set_process_input(false)
 
 func _draw():
 	#Draws squares from the closed list
@@ -154,7 +160,7 @@ func get_tile_from_pos(pos):
 	return tileDB.get_tile_from_pos(tilemap, pos)
 	
 func is_moving():
-	return can_player_move
+	return is_active
 
 func follow_mouse(mouse_pos):
 	
@@ -190,7 +196,6 @@ func _input(event):
 			for node in get_tree().get_nodes_in_group("characters"):
 				if (node.is_moving()):
 					other_unit_moving = true
-					set_process_input(false)
 					
 			if (!other_unit_moving):
 				hit = !hit
@@ -204,12 +209,11 @@ func _input(event):
 			if (character_menu.is_visible()): #TODO USE MODAL
 				#character_menu.hide()
 				if (path.size() > 0):
-					print('hit')
 					move_to(path[0].get_pos())
 					path.clear()
 			
 			if (path.size() > 0):
-				can_player_move = true
+				is_active = true
 						
 			close.clear()
 		
