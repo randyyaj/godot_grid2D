@@ -243,3 +243,8 @@ func _input(event):
 	
 func set_group(group_name):
 	self.group_name = group_name
+	
+func end_turn():
+	set_process(false)
+	set_process_input(false)
+	set_fixed_process(false)

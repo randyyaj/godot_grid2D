@@ -65,9 +65,7 @@ func _on_wait_action():
 	var parent = self.get_parent()
 	parent.set_opacity(.60)
 	#parent.get_node('Sprite').set_modulate(Color(1,1,1,.50))
-	parent.set_process_input(false)
-	parent.set_fixed_process(false)
-	parent.set_process(false)
+	parent.end_turn()
 	parent.is_active = false
 	self.hide()
 
