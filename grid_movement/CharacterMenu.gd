@@ -7,20 +7,20 @@ var vbox_container
 var item_button
 var attack_button
 var trade_button
+var recruit_button
 var wait_button
 var cancel_button
-var toggle_state
-var original_location
 
 func _ready():
 	set_process_input(true)
 	set_fixed_process(true)
 	item_button.hide()
 	attack_button.hide()
+	recruit_button.hide()
 	trade_button.hide()
 	wait_button.hide()
 	cancel_button.hide()
-	print('In ready')
+
 	self.wait_button.connect("pressed", self, "_on_wait_action")
 	self.cancel_button.connect("pressed", self, "_on_cancel_action")
 		
@@ -41,6 +41,12 @@ func toggle_trade_button(state):
 		trade_button.show()
 	else:
 		trade_button.hide()
+		
+func toggle_recruit_button(state):
+	if (state):
+		recruit_button.show()
+	else:
+		recruit_button.hide()
 		
 func toggle_wait_button(state):
 	if (state):
@@ -68,13 +74,19 @@ func _on_wait_action():
 func _on_cancel_action():
 	print('Cancel Action')
 	var parent = self.get_parent()
-	parent.move_to(original_location)
+	if (parent.original_position != null):
+		parent.move_to(parent.original_position)
+	parent.set_process_input(true)
 	parent.is_active = false
 	self.hide()
-
-func set_original_location(location):
-	self.original_location = location
-
+	
+func _input(event):
+	#Detect if mouse pointer has clicked outside the popup if so then reset the character
+	if (event.type == InputEvent.MOUSE_BUTTON and event.is_pressed() and !event.is_echo()):
+		if (self.is_visible()):
+			if (!panel_container.get_global_rect().has_point(event.pos)):
+				_on_cancel_action()
+	
 func _init():
 	panel = Panel.new()
 	vbox_container = VBoxContainer.new()
@@ -91,6 +103,10 @@ func _init():
 	trade_button.set_text("trade")
 	trade_button.set_text_align(HALIGN_CENTER)
 	
+	recruit_button = Button.new()
+	recruit_button.set_text("recruit")
+	recruit_button.set_text_align(HALIGN_CENTER)
+	
 	wait_button = Button.new()
 	wait_button.set_text("wait")
 	wait_button.set_text_align(HALIGN_CENTER)
@@ -103,12 +119,11 @@ func _init():
 	vbox_container.add_child(attack_button)
 	vbox_container.add_child(wait_button)
 	vbox_container.add_child(trade_button)
+	vbox_container.add_child(recruit_button)
 	vbox_container.add_child(cancel_button)
 	
 	panel_container = PanelContainer.new()
 	panel_container.add_child(panel)
 	panel_container.add_child(vbox_container)
 	self.add_child(panel_container)
-	
-	toggle_state = false
 	self.hide()

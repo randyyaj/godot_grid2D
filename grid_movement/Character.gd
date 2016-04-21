@@ -26,6 +26,24 @@ var is_active
 var character_menu
 var next
 var next_counter
+var original_position
+
+#Character specific var
+var group_name
+var character_name
+var health
+var strength
+var speed
+var is_recruitable
+#var sprite_sprite regions
+
+func __init(dictionary):
+	self.character_name = dictionary['group_name']
+	self.character_name = dictionary['character_name']
+	self.health = dictionary['health']
+	self.strength = dictionary['strength']
+	self.speed = dictionary['speed']
+	self.is_recruitable = dictionary['is_recruitable']
 
 func _ready():
 	add_to_group ("characters", true)
@@ -36,7 +54,7 @@ func _ready():
 	tilemap = get_node('../TileMap')
 	tileDB = TileDB.new()
 	hit = false
-	is_active = false	
+	is_active = false
 	close = []
 	path = []
 	next = null
@@ -49,6 +67,7 @@ func _fixed_process(delta):
 	update() #Runs _draw() function
 
 func _process(delta):
+	#Control movment
 	if (is_active):
 		if (path.size() > 0):
 			if (get_pos() != next.get_pos()):
@@ -68,31 +87,36 @@ func _process(delta):
 					next_counter+=1
 					next = path[next_counter]
 			
+			#Checks if the character has stopped moving and prompts the character menu
 			if (get_pos() == path[path.size()-1].get_pos()):
+				original_position = path[0].get_pos()
 				next_counter = 0
 				show_character_menu()
 				path.clear()
 
 func show_character_menu():
+	set_process_input(false)
 	"""
 	Shows a character action menu
 	"""
 	character_menu.set_pos(get_pos()+Vector2(24,0))
 	character_menu.toggle_wait_button(true)
 	character_menu.toggle_cancel_button(true)
-	#if character is near enemy and can attack
-	#character_menu;.
+
+	#TODO if character is near enemy and can attack show attack button 
+	#TODO if character is near an ally show trade option
+	#TODO if character is near a recruitable character show recruit option
 	character_menu.show()
-	character_menu.set_original_location(path[0].get_pos())
 
 func _draw():
-	#Draws squares from the closed list
-	if hit==true:
+	if (hit==true):
+		#Draws squares from the closed list
 		for location in close:
 			#draw_rect(Rect2(location.get_pos()-get_pos(), TILE_SIZE), Color(1,1,0,0.75))
 			draw_rect(Rect2(location.get_pos()-get_pos(), TILE_SIZE), Color(0,255,255,0.75))
 			draw_lines(location.get_pos()-get_pos())
-			
+		
+		#Draw lines around squares	
 		for i in path:
 			draw_rect(Rect2(i.get_pos()-get_pos(), TILE_SIZE), Color(1,1,0,0.75))
 		
@@ -155,11 +179,16 @@ func get_tile_from_pos(pos):
 	"""
 	return tileDB.get_tile_from_pos(tilemap, pos)
 	
-func is_moving():
+func is_active():
+	"""
+	Returns if a character is currently active or moving
+	"""
 	return is_active
 
 func follow_mouse(mouse_pos):
-	
+	"""
+	Function draws square where mouse position is and keeps track of where the character can move
+	"""
 	var current = null
 	
 	for i in close:
@@ -174,8 +203,6 @@ func follow_mouse(mouse_pos):
 		   current = current.get_parent()
 		   path.append(current)
 		
-		#---TODO Prevent collision Invalid call. Nonexistent function 'get_pos' in base 'Nil'.
-		#---TODO only one character can move at a time
 		path.invert()
 		next = path[0]
 	else:
@@ -185,12 +212,12 @@ func _input(event):
 	"""
 	Tracks events being executed. In this case if a character is clicked on.
 	"""
-	if event.type == InputEvent.MOUSE_BUTTON and event.is_pressed() and !event.is_echo():
-		if tilemap.world_to_map(event.pos) == tilemap.world_to_map(get_pos()):
+	if (event.type == InputEvent.MOUSE_BUTTON and event.is_pressed() and !event.is_echo()):
+		if (tilemap.world_to_map(event.pos) == tilemap.world_to_map(get_pos())):
 			var other_unit_moving = false
 			
-			for node in get_tree().get_nodes_in_group("characters"):
-				if (node.is_moving()):
+			for character in get_tree().get_nodes_in_group("characters"):
+				if (character.is_active()):
 					other_unit_moving = true
 					
 			if (!other_unit_moving):
@@ -198,27 +225,21 @@ func _input(event):
 				close.clear()
 				path.clear()
 				show_moveable_areas()
-			
+				
+				if (!hit):
+					show_character_menu()
 		else:
 			hit = false
-			
-			if (character_menu.is_visible()): #TODO USE MODAL
-				#character_menu.hide()
-				if (path.size() > 0):
-					move_to(path[0].get_pos())
-					path.clear()
-			
+ 
+			#Character is still active if it can move
 			if (path.size() > 0):
 				is_active = true
-						
+			
 			close.clear()
-		
+	
+	#Draws squares following the mouse position
 	if (event.type==InputEvent.MOUSE_MOTION and hit):
 		follow_mouse(tilemap.map_to_world(tilemap.world_to_map(event.pos)))
-		#print("Mouse Motion at: ", tilemap.map_to_world(tilemap.world_to_map(event.pos)))
-			
-	#if event.type == InputEvent.MOUSE_BUTTON and event.is_pressed() and !event.is_echo():
-	#	print(get_tile(event.pos).get_name())
 	
-			
-			
+func set_group(group_name):
+	self.group_name = group_name
