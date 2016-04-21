@@ -74,8 +74,9 @@ func _process(delta):
 				path.clear()
 
 func show_character_menu():
-	#TODO Need action menu to run sequentially to update the characters paths
-	#character_menu.set_process_input(true)
+	"""
+	Shows a character action menu
+	"""
 	character_menu.set_pos(get_pos()+Vector2(24,0))
 	character_menu.toggle_wait_button(true)
 	character_menu.toggle_cancel_button(true)
@@ -83,11 +84,6 @@ func show_character_menu():
 	#character_menu;.
 	character_menu.show()
 	character_menu.set_original_location(path[0].get_pos())
-	#character_menu.grab_focus()
-	#character_menu.show_modal(true)
-	#print('PATH CLEARED')
-	#path.clear()
-	#set_process_input(false)
 
 func _draw():
 	#Draws squares from the closed list
