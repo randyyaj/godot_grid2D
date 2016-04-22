@@ -1,14 +1,57 @@
-[gd_scene load_steps=3 format=1]
+[gd_scene load_steps=4 format=1]
 
-[ext_resource path="res://tilesets.tres" type="TileSet" id=1]
-[ext_resource path="res://player.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Main.gd" type="Script" id=1]
+[ext_resource path="res://tilesets.tres" type="TileSet" id=2]
+[ext_resource path="res://player.tscn" type="PackedScene" id=3]
 
 [node name="Node2D" type="Node2D"]
+
+script/script = ExtResource( 1 )
+
+[node name="UiCanvasLayer" type="CanvasLayer" parent="."]
+
+layer = 1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="Panel" type="Panel" parent="UiCanvasLayer"]
+
+visibility/opacity = 0.300113
+margin/top = 184.0
+margin/right = 40.0
+margin/bottom = 224.0
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UiCanvasLayer/Panel"]
+
+margin/right = 40.0
+margin/bottom = 40.0
+focus/ignore_mouse = false
+focus/stop_mouse = false
+size_flags/horizontal = 2
+size_flags/vertical = 2
+alignment = 0
+
+[node name="Phase" type="RichTextLabel" parent="UiCanvasLayer"]
+
+margin/right = 40.0
+margin/bottom = 40.0
+focus/ignore_mouse = false
+focus/stop_mouse = true
+size_flags/horizontal = 2
+size_flags/vertical = 2
+bbcode/enabled = false
+bbcode/bbcode = ""
+visible_characters = -1
 
 [node name="TileMap" type="TileMap" parent="."]
 
 mode = 0
-tile_set = ExtResource( 1 )
+tile_set = ExtResource( 2 )
 cell/size = Vector2( 16, 16 )
 cell/quadrant_size = 16
 cell/custom_transform = Matrix32( 1, 0, 0, 1, 0, 0 )
@@ -23,31 +66,47 @@ collision/mask = 1
 occluder/light_mask = 1
 tile_data = IntArray( 0, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6, 1, 7, 1, 8, 1, 9, 1, 10, 1, 11, 1, 12, 1, 13, 1, 14, 1, 15, 1, 16, 1, 65536, 1, 65537, 0, 65538, 0, 65539, 0, 65540, 0, 65541, 0, 65542, 0, 65543, 0, 65544, 0, 65545, 0, 65546, 0, 65547, 0, 65548, 1, 65549, 0, 65550, 0, 65551, 0, 65552, 1, 131072, 1, 131073, 0, 131074, 0, 131075, 0, 131076, 0, 131077, 0, 131078, 0, 131079, 0, 131080, 0, 131081, 0, 131082, 0, 131083, 0, 131084, 1, 131085, 0, 131086, 0, 131087, 0, 131088, 1, 196608, 1, 196609, 0, 196610, 0, 196611, 1, 196612, 1, 196613, 1, 196614, 1, 196615, 0, 196616, 0, 196617, 0, 196618, 0, 196619, 0, 196620, 1, 196621, 0, 196622, 0, 196623, 0, 196624, 1, 262144, 1, 262145, 0, 262146, 0, 262147, 0, 262148, 0, 262149, 0, 262150, 1, 262151, 0, 262152, 0, 262153, 1, 262154, 0, 262155, 0, 262156, 1, 262157, 0, 262158, 1, 262159, 0, 262160, 1, 327680, 1, 327681, 0, 327682, 0, 327683, 0, 327684, 0, 327685, 0, 327686, 1, 327687, 0, 327688, 0, 327689, 0, 327690, 0, 327691, 0, 327692, 1, 327693, 0, 327694, 0, 327695, 0, 327696, 1, 393216, 1, 393217, 0, 393218, 1, 393219, 0, 393220, 0, 393221, 0, 393222, 1, 393223, 0, 393224, 0, 393225, 0, 393226, 0, 393227, 0, 393228, 0, 393229, 0, 393230, 0, 393231, 0, 393232, 1, 458752, 1, 458753, 0, 458754, 0, 458755, 0, 458756, 0, 458757, 0, 458758, 1, 458759, 0, 458760, 0, 458761, 0, 458762, 0, 458763, 0, 458764, 0, 458765, 1, 458766, 0, 458767, 0, 458768, 1, 524288, 1, 524289, 0, 524290, 0, 524291, 0, 524292, 1, 524293, 0, 524294, 1, 524295, 1, 524296, 1, 524297, 1, 524298, 0, 524299, 0, 524300, 0, 524301, 0, 524302, 0, 524303, 0, 524304, 1, 589824, 1, 589825, 0, 589826, 0, 589827, 0, 589828, 0, 589829, 0, 589830, 0, 589831, 0, 589832, 0, 589833, 0, 589834, 0, 589835, 0, 589836, 0, 589837, 0, 589838, 0, 589839, 0, 589840, 1, 655360, 1, 655361, 0, 655362, 1, 655363, 0, 655364, 0, 655365, 0, 655366, 0, 655367, 0, 655368, 0, 655369, 0, 655370, 0, 655371, 0, 655372, 1, 655373, 0, 655374, 0, 655375, 0, 655376, 1, 720896, 1, 720897, 0, 720898, 0, 720899, 0, 720900, 0, 720901, 1, 720902, 0, 720903, 0, 720904, 0, 720905, 0, 720906, 0, 720907, 0, 720908, 1, 720909, 0, 720910, 0, 720911, 0, 720912, 1, 786432, 1, 786433, 0, 786434, 0, 786435, 0, 786436, 0, 786437, 0, 786438, 0, 786439, 0, 786440, 0, 786441, 0, 786442, 0, 786443, 0, 786444, 1, 786445, 0, 786446, 0, 786447, 0, 786448, 1, 851968, 1, 851969, 1, 851970, 1, 851971, 1, 851972, 1, 851973, 1, 851974, 1, 851975, 1, 851976, 1, 851977, 1, 851978, 1, 851979, 1, 851980, 1, 851981, 1, 851982, 1, 851983, 1, 851984, 1 )
 
-[node name="KinematicBody2D" parent="." instance=ExtResource( 2 )]
+[node name="KinematicBody2D" parent="." instance=ExtResource( 3 )]
 
 transform/pos = Vector2( 128, 80 )
 collision/margin = 0.08
 movement = 5
+group_name = "enemy"
+is_recruitable = false
+attack_range = 1
 
 [node name="Sprite" parent="KinematicBody2D"]
 
 region_rect = Rect2( 0, 51, 16, 16 )
 
-[node name="KinematicBody2D1" parent="." instance=ExtResource( 2 )]
+[node name="CanvasLayer" type="CanvasLayer" parent="KinematicBody2D"]
+
+layer = 1
+offset = Vector2( 0, 0 )
+rotation = 0.0
+scale = Vector2( 1, 1 )
+
+[node name="KinematicBody2D1" parent="." instance=ExtResource( 3 )]
 
 transform/pos = Vector2( 64, 160 )
 collision/margin = 0.08
 movement = 10
+group_name = "player"
+is_recruitable = false
+attack_range = 1
 
 [node name="Sprite" parent="KinematicBody2D1"]
 
 region_rect = Rect2( 0, 102, 16, 16 )
 
-[node name="KinematicBody2D2" parent="." instance=ExtResource( 2 )]
+[node name="KinematicBody2D2" parent="." instance=ExtResource( 3 )]
 
 transform/pos = Vector2( 16, 16 )
 collision/margin = 0.08
 movement = 8
+group_name = "other"
+is_recruitable = true
+attack_range = 2
 
 
 [editable path="KinematicBody2D"]

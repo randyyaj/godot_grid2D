@@ -15,6 +15,9 @@ const MOVE_SPEED=4 #MUST BE DIVIDABLE BY THE TILE SIZE and BASE 2 Where MAX_SPEE
 
 #Export variables to control on the scene editor/inspector
 export var movement = 0
+export var group_name = "characters"
+export var is_recruitable = false
+export var attack_range = 1
 
 #Member variables
 var tileDB
@@ -22,19 +25,20 @@ var tilemap
 var hit
 var close 
 var path
+var attackable_areas
 var is_active
+var is_selectable
+var is_enemy_nearby
 var character_menu
 var next
 var next_counter
 var original_position
 
 #Character specific var
-var group_name
 var character_name
 var health
 var strength
 var speed
-var is_recruitable
 #var sprite_sprite regions
 
 func __init(dictionary):
@@ -46,7 +50,8 @@ func __init(dictionary):
 	self.is_recruitable = dictionary['is_recruitable']
 
 func _ready():
-	add_to_group ("characters", true)
+	add_to_group("characters", true)
+	add_to_group(group_name)
 	set_process_input(true)
 	set_fixed_process(true)
 	set_process(true)
@@ -55,8 +60,11 @@ func _ready():
 	tileDB = TileDB.new()
 	hit = false
 	is_active = false
+	is_enemy_nearby = false
+	is_selectable = true
 	close = []
 	path = []
+	attackable_areas = []
 	next = null
 	next_counter = 0
 	
@@ -89,8 +97,11 @@ func _process(delta):
 			
 			#Checks if the character has stopped moving and prompts the character menu
 			if (get_pos() == path[path.size()-1].get_pos()):
+				#print(get_z())
+				#set_z(-1)
 				original_position = path[0].get_pos()
 				next_counter = 0
+				check_proximity()
 				show_character_menu()
 				path.clear()
 
@@ -100,26 +111,31 @@ func show_character_menu():
 	Shows a character action menu
 	"""
 	character_menu.set_pos(get_pos()+Vector2(24,0))
+	character_menu.toggle_info_button(true)
+	character_menu.toggle_item_button(true)
 	character_menu.toggle_wait_button(true)
 	character_menu.toggle_cancel_button(true)
-
-	#TODO if character is near enemy and can attack show attack button 
-	#TODO if character is near an ally show trade option
-	#TODO if character is near a recruitable character show recruit option
 	character_menu.show()
 
 func _draw():
-	if (hit==true):
+	if (hit):
 		#Draws squares from the closed list
 		for location in close:
 			#draw_rect(Rect2(location.get_pos()-get_pos(), TILE_SIZE), Color(1,1,0,0.75))
 			draw_rect(Rect2(location.get_pos()-get_pos(), TILE_SIZE), Color(0,255,255,0.75))
+			#Draw lines around squares	
 			draw_lines(location.get_pos()-get_pos())
 		
-		#Draw lines around squares	
+		#Draw mouse areas
 		for i in path:
 			draw_rect(Rect2(i.get_pos()-get_pos(), TILE_SIZE), Color(1,1,0,0.75))
-		
+	
+	if (is_enemy_nearby):
+		for location in attackable_areas:
+			draw_rect(Rect2(location-get_pos(), TILE_SIZE), Color(1,0,0,0.75))
+			draw_lines(location-get_pos())
+			
+			
 
 func show_moveable_areas():
 	"""
@@ -139,7 +155,7 @@ func show_moveable_areas():
 			for node in get_tree().get_nodes_in_group("characters"):
 				if (node.get_pos() == current_location.get_pos()):
 					is_location_occupied = true
-		
+			
 		if (current_location.get_cost() < movement && !is_location_occupied):
 			for neighbor in get_neighbors(current_location.get_pos()):
 				var new_cost = current_location.get_cost() + get_tile_from_pos(neighbor).get_cost()
@@ -151,7 +167,55 @@ func show_moveable_areas():
 					
 			close.append(current_location)
 		open.pop_front()
+
+func show_attackable_areas():
+	pass
 		
+func check_proximity():
+	#TODO Check against attack range
+	character_menu.toggle_attack_button(false)
+	character_menu.toggle_recruit_button(false)
+	character_menu.toggle_trade_button(false)
+	is_enemy_nearby = false
+	attackable_areas = []
+	var neighbors = []
+	
+	attackable_areas = get_attackable_areas(get_pos())
+	
+	for neighbor in get_attackable_areas(get_pos()):
+		if (group_name == "player"):
+			for character in get_tree().get_nodes_in_group("enemy"):
+				if (character.get_pos() == neighbor):
+					character_menu.toggle_attack_button(true)
+					is_enemy_nearby = true
+			
+			for character in get_tree().get_nodes_in_group("other"):
+				if (character.get_pos() == neighbor):
+					if (character.is_recruitable):
+						character_menu.toggle_recruit_button(true)
+						
+			for character in get_tree().get_nodes_in_group("player"):
+				if (character.get_pos() == neighbor):
+					if (character.is_recruitable):
+						character_menu.toggle_trade_button(true)
+		
+		if (group_name == "other"):
+			for character in get_tree().get_nodes_in_group("enemy"):
+				if (character.get_pos() == neighbor):
+					character_menu.toggle_attack_button(true)
+					is_enemy_nearby = true
+					
+		if (group_name == "enemy"):
+			for character in get_tree().get_nodes_in_group("player"):
+				if (character.get_pos() == neighbor):
+					character_menu.toggle_attack_button(true)
+					is_enemy_nearby = true
+					
+			for character in get_tree().get_nodes_in_group("other"):
+				if (character.get_pos() == neighbor):
+					character_menu.toggle_attack_button(true)
+					is_enemy_nearby = true
+
 func draw_lines(pos):
 	"""
 	Function draws outline around rectangles
@@ -160,6 +224,23 @@ func draw_lines(pos):
 	draw_line(pos, pos+Vector2(16,0), Color(0,0,0), 1)
 	draw_line(pos+Vector2(16,16), pos+Vector2(16,0), Color(0,0,0), 1)
 	draw_line(pos+Vector2(16,16), pos+Vector2(0,16), Color(0,0,0), 1)
+
+func get_attackable_areas(pos):
+	var neighbors = []
+	
+	for i in range(1,attack_range+1):
+		if (attack_range > 1 and i < attack_range):
+			neighbors.append(Vector2(pos.x + TILE_WIDTH*i, pos.y + TILE_HEIGHT*i))
+			neighbors.append(Vector2(pos.x + TILE_WIDTH*i, pos.y - TILE_HEIGHT*i))
+			neighbors.append(Vector2(pos.x - TILE_WIDTH*i, pos.y + TILE_HEIGHT*i))
+			neighbors.append(Vector2(pos.x - TILE_WIDTH*i, pos.y - TILE_HEIGHT*i))
+		
+		neighbors.append(Vector2(pos.x + TILE_WIDTH*i, pos.y))
+		neighbors.append(Vector2(pos.x - TILE_WIDTH*i, pos.y))
+		neighbors.append(Vector2(pos.x, pos.y + TILE_HEIGHT*i))
+		neighbors.append(Vector2(pos.x, pos.y - TILE_HEIGHT*i))
+	
+	return neighbors
 
 func get_neighbors(pos):
 	"""
@@ -235,6 +316,9 @@ func _input(event):
 			if (path.size() > 0):
 				is_active = true
 			
+			is_enemy_nearby = false
+			attackable_areas.clear()
+			
 			close.clear()
 	
 	#Draws squares following the mouse position
@@ -247,4 +331,4 @@ func set_group(group_name):
 func end_turn():
 	set_process(false)
 	set_process_input(false)
-	set_fixed_process(false)
+	set_fixed_process(false) #Commented controls draw events

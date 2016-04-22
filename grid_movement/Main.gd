@@ -5,18 +5,13 @@ var player_phase
 var enemy_phase
 var other_phase
 
-func _init():
-	print("In PHASE")
+func _ready():
+	set_process(true)
 	player_phase = true
 	enemy_phase = false
 	other_phase = false
 	
-func _ready():
-	set_process(true)
-	
 func _process(delta):
-	print("Processing")
-	
 	if (player_phase):
 		if (!has_active_units("player")):
 			reset_enemy_phase()
@@ -45,7 +40,7 @@ func has_active_units(group_name):
 	var counter = 0
 	
 	for character in get_tree().get_nodes_in_group(group_name):
-		if (character.is_active()):
+		if (character.is_selectable):
 			counter+=1
 	
 	if (counter > 0):
@@ -56,11 +51,12 @@ func has_active_units(group_name):
 func reset_phase(group_name):
 	for character in get_tree().get_nodes_in_group(group_name):
 		character.set_opacity(1)
-		character.set_input_process(true)
+		character.set_process_input(true)
 		character.set_fixed_process(true)
 		character.set_process(true)
+		character.is_selectable = true
 
-func reset_player():
+func reset_player_phase():
 	reset_phase("player")
 
 func reset_enemy_phase():

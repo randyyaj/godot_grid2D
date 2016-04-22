@@ -4,6 +4,7 @@ extends PopupMenu
 var panel_container
 var panel
 var vbox_container
+var info_button
 var item_button
 var attack_button
 var trade_button
@@ -14,6 +15,7 @@ var cancel_button
 func _ready():
 	set_process_input(true)
 	set_fixed_process(true)
+	info_button.hide()
 	item_button.hide()
 	attack_button.hide()
 	recruit_button.hide()
@@ -23,7 +25,13 @@ func _ready():
 
 	self.wait_button.connect("pressed", self, "_on_wait_action")
 	self.cancel_button.connect("pressed", self, "_on_cancel_action")
-		
+
+func toggle_info_button(state):
+	if (state):
+		info_button.show()
+	else:
+		info_button.hide()
+
 func toggle_item_button(state):
 	if (state):
 		item_button.show()
@@ -65,8 +73,12 @@ func _on_wait_action():
 	var parent = self.get_parent()
 	parent.set_opacity(.60)
 	#parent.get_node('Sprite').set_modulate(Color(1,1,1,.50))
-	parent.end_turn()
 	parent.is_active = false
+	parent.is_enemy_nearby = false
+	parent.is_selectable = false
+	parent.attackable_areas.clear()
+	parent.update() #redraw squares
+	parent.end_turn()
 	self.hide()
 
 func _on_cancel_action():
@@ -76,6 +88,7 @@ func _on_cancel_action():
 		parent.move_to(parent.original_position)
 	parent.set_process_input(true)
 	parent.is_active = false
+	parent.is_enemy_nearby = false
 	self.hide()
 	
 func _input(event):
@@ -88,6 +101,10 @@ func _input(event):
 func _init():
 	panel = Panel.new()
 	vbox_container = VBoxContainer.new()
+	
+	info_button = Button.new()
+	info_button.set_text("info")
+	info_button.set_text_align(HALIGN_CENTER)
 	
 	item_button = Button.new()
 	item_button.set_text("item")
@@ -113,6 +130,7 @@ func _init():
 	cancel_button.set_text("cancel")
 	cancel_button.set_text_align(HALIGN_CENTER)
 	
+	vbox_container.add_child(info_button)
 	vbox_container.add_child(item_button)
 	vbox_container.add_child(attack_button)
 	vbox_container.add_child(wait_button)
